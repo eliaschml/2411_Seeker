@@ -7,9 +7,9 @@ import datetime as dt
 import pytz
 
 UPLOAD_FOLDER = './temp_uploads'
-if not os.path.exists(UPLOAD_FOLDER):
+'''if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-    print(UPLOAD_FOLDER)
+    print(UPLOAD_FOLDER)'''
 
 app,rt = fh.fast_app(
     live=True
@@ -44,13 +44,13 @@ async def post(myFile:fh.UploadFile, session):
     file = await myFile.read()  # Access the file uploaded
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
-        temp_file_path = os.path.join(UPLOAD_FOLDER
+        '''temp_file_path = os.path.join(UPLOAD_FOLDER
                                     , f'temp_{myFile.filename}')
         # save uploaded file temporarily
         with open(temp_file_path, 'wb') as f:
-            f.write(file) # save file
+            f.write(file) # save file'''
         # extract raw text from pdf    
-        jumbled_text = functions.extract_text(temp_file_path)
+        jumbled_text = functions.extract_text(myFile.file)
         # reorder jumbled text using gemini
         reordered_text = functions.reorder_text(jumbled_text) 
         # generate seeker record_id
@@ -66,8 +66,8 @@ async def post(myFile:fh.UploadFile, session):
         )
         # store seeker file in db
         functions.add_record(record_id,record_content)
-        # clear temp uploaded file
-        os.remove(temp_file_path)
+        '''# clear temp uploaded file
+        os.remove(temp_file_path)'''
         upload_status = fh.Details(
                             fh.Summary('CV information analysis complete!✅')
                             ,fh.Div(fh.Code(reordered_text))
@@ -115,22 +115,25 @@ async def post(seekerFile:fh.UploadFile, session):
     # check file is json, and single file
     session['record_id']=""
     if seekerFile and seekerFile.filename.endswith('.json'):
-        temp_file_path = os.path.join(UPLOAD_FOLDER
+        '''temp_file_path = os.path.join(UPLOAD_FOLDER
                                     , f'temp_{seekerFile.filename}')
         # temporarily save seeker file
         with open(temp_file_path, 'wb') as f:
             f.write(file)
         # extract seeker content
         with open(temp_file_path, 'r') as f:
-            seeker_content = json.load(f)
+            seeker_content = json.load(f)'''
+        print(seekerFile)
+        seeker_content = json.loads(file.decode("utf-8") )
+        print(f'seeker content \n: {seeker_content}')
         # extract seeker record_id and write to session
         target_record_id = json.loads(seeker_content[0]['record_dict'])['record_id']
         session['record_id']=target_record_id
         # retrieve content from db
         target_master_cv = json.loads(seeker_content[0]['record_dict'])['record_content']
-        # clear uploaded seeker file
+        '''# clear uploaded seeker file
         if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+            os.remove(temp_file_path)'''
         # checks if uploaded record id actually matches any record
         if target_master_cv:
             return fh.Div(
@@ -140,8 +143,8 @@ async def post(seekerFile:fh.UploadFile, session):
             )
         else:
             session['record_id'] = seeker_content['record_id']
-            if os.path.exists(temp_file_path):
-                os.remove(temp_file_path)
+            '''if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)'''
             return fh.Div(
                 fh.P(
                     '''Couldn't find record, try re-uploading Seeker file.
