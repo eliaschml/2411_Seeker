@@ -45,8 +45,8 @@ async def post(myFile:fh.UploadFile, session):
     if myFile and myFile.filename.endswith('.pdf'):
         # extract raw text from pdf    
         jumbled_text = functions.extract_text(myFile.file)
-        '''# reorder jumbled text using gemini
-        reordered_text = functions.reorder_text(jumbled_text) 
+        # reorder jumbled text using gemini
+        '''reordered_text = functions.reorder_text(jumbled_text) 
         # generate seeker record_id
         record_id = functions.gen_record_id()
         # store record_id to session

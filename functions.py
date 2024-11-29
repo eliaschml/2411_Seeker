@@ -12,10 +12,10 @@ from supabase import create_client
 
 #%% PDF text extractor
 # extracts text from all pages of one pdf file
-def extract_text(pdf_path):
+def extract_text(pdf_file):
   # initialize output variable
   raw_text = ''
-  with pdfplumber.open(pdf_path) as pdf:
+  with pdfplumber.open(pdf_file) as pdf:
     pages = []
     for page in pdf.pages:
         # Extract text using Tesseract OCR
