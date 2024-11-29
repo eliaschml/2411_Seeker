@@ -15,6 +15,7 @@ from supabase import create_client
 def extract_text(pdf_file):
   # initialize output variable
   raw_text = ''
+  pdf_file = BytesIO(pdf_file) # converts bytes to file
   with pdfplumber.open(pdf_file) as pdf:
     pages = []
     for page in pdf.pages:

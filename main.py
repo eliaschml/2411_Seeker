@@ -43,8 +43,8 @@ async def post(myFile:fh.UploadFile, session):
     file = await myFile.read()  # Access the file uploaded
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
-        # extract raw text from pdf    
-        jumbled_text = functions.extract_text(myFile.file)
+        # extract raw text from pdf 
+        jumbled_text = functions.extract_text(file)
         # reorder jumbled text using gemini
         '''reordered_text = functions.reorder_text(jumbled_text) 
         # generate seeker record_id
