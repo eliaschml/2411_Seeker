@@ -44,7 +44,7 @@ async def post(myFile:fh.UploadFile, session):
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
         # extract raw text from pdf    
-        jumbled_text = functions.extract_text(myFile.file)
+        '''jumbled_text = functions.extract_text(myFile.file)
         # reorder jumbled text using gemini
         reordered_text = functions.reorder_text(jumbled_text) 
         # generate seeker record_id
@@ -57,12 +57,12 @@ async def post(myFile:fh.UploadFile, session):
             "record_id": record_id
             ,"record_content": reordered_text
             }
-        )
+        )'''
         # store seeker file in db
         #functions.add_record(record_id,record_content)
         upload_status = fh.Details(
                             fh.Summary('CV information analysis complete!✅')
-                            ,fh.Div(fh.Code(reordered_text))
+                            #,fh.Div(fh.Code(reordered_text))
                             ,hx_swap="beforeend"
                             ,hx_target='#upload_form_div'
                             )
