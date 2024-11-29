@@ -12,8 +12,7 @@ UPLOAD_FOLDER = './temp_uploads'
     print(UPLOAD_FOLDER)'''
 
 app,rt = fh.fast_app(
-    live=True
-    ,hdrs=(fh.Link(rel="icon", type='assets/x-icon', href=r'.\assets\favicon-32x32.png'),)
+    hdrs=(fh.Link(rel="icon", type='assets/x-icon', href=r'.\assets\favicon-32x32.png'),)
     )
 @rt('/learn_more')
 def get(): return contents.intro
