@@ -14,7 +14,7 @@ import base64
 # calls ocr js function and extracts text from image
 def call_ocr_function(image_data):
     # image needs to be base64 encoded
-    url = 'https://your-vercel-function-url'  # Replace with your Vercel function URL
+    url = 'https://2411-seeker.vercel.app/functions/ocr'  # Replace with your Vercel function URL
     headers = {'Content-Type': 'application/json'}
     data = {'imageData': image_data}
 
