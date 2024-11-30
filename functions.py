@@ -1,5 +1,4 @@
 # this file contains all (mostly non fasthtml) functions for the webapp
-import pytesseract
 from dotenv import load_dotenv
 import os 
 from PIL import Image
