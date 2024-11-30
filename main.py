@@ -44,9 +44,11 @@ async def post(myFile:fh.UploadFile, session):
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
         # extract raw text from pdf 
-        '''jumbled_text = functions.extract_text(file)
-        # reorder jumbled text using gemini
-        reordered_text = functions.reorder_text(jumbled_text) 
+        jumbled_text = functions.extract_text(file)
+        # temp
+        upload_status = fh.P(jumbled_text)  
+        '''# reorder jumbled text using gemini
+        reordered_text = functions.reorder_text(jumbled_text)
         # generate seeker record_id
         record_id = functions.gen_record_id()
         # store record_id to session
@@ -65,7 +67,7 @@ async def post(myFile:fh.UploadFile, session):
                             ,fh.Div(fh.Code(jumbled_text))
                             ,hx_swap="beforeend"
                             ,hx_target='#upload_form_div'
-                            )
+                            )'''
         #script to enable download button upon upload
         download_button_enabler = fh.Html(
         fh.Script(
@@ -75,8 +77,7 @@ async def post(myFile:fh.UploadFile, session):
             hx_swap="attr"
             )
         )
-        return upload_status,download_button_enabler'''
-        return fh.P(str(file))
+        return upload_status,download_button_enabler
     else:
         return fh.Response('Invalid File format. Please upload a PDF.'
                            ,status=400)
