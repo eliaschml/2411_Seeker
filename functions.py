@@ -1,5 +1,4 @@
 # this file contains all (mostly non fasthtml) functions for the webapp
-import pytesseract
 from dotenv import load_dotenv
 import os 
 from PIL import Image
@@ -9,7 +8,21 @@ import google.generativeai as genai
 import prompts
 import uuid
 from supabase import create_client
+import requests
 
+#%% Call OCR function
+# calls ocr js function and extracts text from image
+def call_ocr_function(image_data):
+    # image needs to be base64 encoded
+    url = 'https://your-vercel-function-url'  # Replace with your Vercel function URL
+    headers = {'Content-Type': 'application/json'}
+    data = {'imageData': image_data}
+
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code == 200:
+        return response.json()['text']
+    else:
+        return None
 #%% PDF text extractor
 # extracts text from all pages of one pdf file
 def extract_text(pdf_file):
@@ -21,10 +34,11 @@ def extract_text(pdf_file):
     for page in pdf.pages:
         # Extract text using Tesseract OCR
         image = page.to_image(resolution=500)
-        image_bytes = BytesIO()
-        image.save(image_bytes, format="PNG")
-        image_bytes.seek(0)
-        text = pytesseract.image_to_string(Image.open(image_bytes))
+        # Convert image to bytes directly
+        image_bytes = image.original_image.tobytes()
+        # Base64 encode the image bytes
+        base64_encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+        text = call_ocr_function(base64_encoded_image)
         # append text from each page to page list
         pages.append(text)
     # concatenates page texts from list into one string 
