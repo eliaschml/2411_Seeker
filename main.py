@@ -44,9 +44,9 @@ async def post(myFile:fh.UploadFile, session):
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
         # extract raw text from pdf 
-        jumbled_text = functions.extract_text(file)
+        '''jumbled_text = functions.extract_text(file)
         # reorder jumbled text using gemini
-        '''reordered_text = functions.reorder_text(jumbled_text) 
+        reordered_text = functions.reorder_text(jumbled_text) 
         # generate seeker record_id
         record_id = functions.gen_record_id()
         # store record_id to session
@@ -57,7 +57,7 @@ async def post(myFile:fh.UploadFile, session):
             "record_id": record_id
             ,"record_content": reordered_text
             }
-        )'''
+        )
         # store seeker file in db
         #functions.add_record(record_id,record_content)
         upload_status = fh.Details(
@@ -75,7 +75,8 @@ async def post(myFile:fh.UploadFile, session):
             hx_swap="attr"
             )
         )
-        return upload_status,download_button_enabler
+        return upload_status,download_button_enabler'''
+        return fh.P(str(file))
     else:
         return fh.Response('Invalid File format. Please upload a PDF.'
                            ,status=400)
