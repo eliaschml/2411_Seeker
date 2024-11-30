@@ -1,7 +1,6 @@
 # this file contains all (mostly non fasthtml) functions for the webapp
 from dotenv import load_dotenv
-import os 
-from PIL import Image
+import os
 from io import BytesIO
 import pdfplumber
 import google.generativeai as genai
@@ -9,6 +8,7 @@ import prompts
 import uuid
 from supabase import create_client
 import requests
+import base64
 
 #%% Call OCR function
 # calls ocr js function and extracts text from image
