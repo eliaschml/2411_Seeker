@@ -1,5 +1,5 @@
 # this file contains all (mostly non fasthtml) functions for the webapp
-import pytesseract
+from easyocr import Reader
 from dotenv import load_dotenv
 import os 
 from PIL import Image
@@ -21,13 +21,16 @@ def extract_text(pdf_file):
     for page in pdf.pages:
         # Extract text using Tesseract OCR
         image = page.to_image(resolution=500)
-        image_bytes = BytesIO()
-        image.save(image_bytes, format="PNG")
-        image_bytes.seek(0)
-        text = pytesseract.image_to_string(Image.open(image_bytes))
+        image_bytes_io = BytesIO()
+        image.save(image_bytes_io, format="PNG")
+        image_bytes = image_bytes_io.getvalue()
+        reader = Reader(['en','ko'])
+        text_list = reader.readtext(image_bytes, detail=0)
+        #text = pytesseract.image_to_string(Image.open(image_bytes))
         # append text from each page to page list
+        text=" ".join(text_list)
         pages.append(text)
-    # concatenates page texts from list into one string 
+    # concatenates page texts from list into one string
     raw_text = " ".join(pages)
   return raw_text
 
