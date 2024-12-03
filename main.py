@@ -45,9 +45,7 @@ async def post(myFile:fh.UploadFile, session):
     if myFile and myFile.filename.endswith('.pdf'):
         # extract raw text from pdf 
         jumbled_text = functions.extract_text(file)
-        # temp
-        upload_status = fh.P(jumbled_text)  
-        '''# reorder jumbled text using gemini
+        # reorder jumbled text using gemini
         reordered_text = functions.reorder_text(jumbled_text)
         # generate seeker record_id
         record_id = functions.gen_record_id()
@@ -61,13 +59,13 @@ async def post(myFile:fh.UploadFile, session):
             }
         )
         # store seeker file in db
-        #functions.add_record(record_id,record_content)
+        functions.add_record(record_id,record_content)
         upload_status = fh.Details(
                             fh.Summary('CV information analysis complete!✅')
                             ,fh.Div(fh.Code(jumbled_text))
                             ,hx_swap="beforeend"
                             ,hx_target='#upload_form_div'
-                            )'''
+                            )
         #script to enable download button upon upload
         download_button_enabler = fh.Html(
         fh.Script(
@@ -169,4 +167,6 @@ async def post(jd: contents.Job_Description,session):
             )
 # create @rt('/loading') and a loading routing function in contents 
 # enabling me to have a loading graphic when BE stuff is happening
-fh.serve()
+fh.serve(host='0.0.0.0',
+        port=8080,
+        )
