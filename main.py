@@ -1,7 +1,6 @@
 from fasthtml import common as fh
 import contents
 import functions
-import os
 import json
 import datetime as dt
 import pytz
@@ -19,8 +18,7 @@ def get(): return contents.intro
 
 @rt('/getting_started')
 
-def get(): 
-    # div = fh.Div(session['test'])
+def get():
     return contents.getting_started
 
 @rt('/cv_optimizer')
@@ -43,14 +41,20 @@ async def post(myFile:fh.UploadFile, session):
     file = await myFile.read()  # Access the file uploaded
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
+        # tracking string
+        tracking_string = 'tracking_string'
         # extract raw text from pdf 
-        jumbled_text = functions.extract_text(file)
+        jumbled_text = await functions.extract_text(file)
+        tracking_string = tracking_string + '_jumbled_text'
         # reorder jumbled text using gemini
-        reordered_text = functions.reorder_text(jumbled_text)
+        reordered_text = await functions.reorder_text(jumbled_text)
+        tracking_string = tracking_string + '_reorder_text'
         # generate seeker record_id
-        record_id = functions.gen_record_id()
+        record_id = await functions.gen_record_id()
+        tracking_string = tracking_string + f'_record_id_{record_id}'
         # store record_id to session
         session['record_id'] = record_id
+        tracking_string = tracking_string + f'_session_{session['record_id']}'
         # create seeker content json file 
         record_content = json.dumps(
             {
@@ -59,7 +63,9 @@ async def post(myFile:fh.UploadFile, session):
             }
         )
         # store seeker file in db
-        functions.add_record(record_id,record_content)
+        await functions.add_record(record_id,record_content)
+        tracking_string = tracking_string + 'add_string'
+        tracking_string_el = fh.P(tracking_string)
         upload_status = fh.Details(
                             fh.Summary('CV information analysis complete!✅')
                             ,fh.Div(fh.Code(jumbled_text))
@@ -75,7 +81,7 @@ async def post(myFile:fh.UploadFile, session):
             hx_swap="attr"
             )
         )
-        return upload_status,download_button_enabler
+        return tracking_string_el, upload_status,download_button_enabler
     else:
         return fh.Response('Invalid File format. Please upload a PDF.'
                            ,status=400)
@@ -84,7 +90,7 @@ async def post(myFile:fh.UploadFile, session):
 # uploads pdfs and extracts raw text
 async def get(session):
     # get seeker file
-    seeker_file = functions.get_record_dict(record_id=session['record_id'])
+    seeker_file = await functions.get_record_dict(record_id=session['record_id'])
     json_string = json.dumps(seeker_file)
     return fh.Html(
         fh.A(f"Download JSON", href=f"data:application/json;charset=utf-8,{json_string}", download="data.json")
@@ -104,7 +110,7 @@ async def post(seekerFile:fh.UploadFile, session):
         target_record_id = json.loads(seeker_content[0]['record_dict'])['record_id']
         session['record_id']=target_record_id
         # retrieve content from db
-        target_master_cv = json.loads(seeker_content[0]['record_dict'])['record_content']
+        target_master_cv = await functions.get_record_dict(record_id=session['record_id'])
         # checks if uploaded record id actually matches any record
         if target_master_cv:
             return fh.Div(
@@ -135,11 +141,11 @@ async def post(jd: contents.Job_Description,session):
         formatted_timestamp = now.strftime("%Y-%m-%d %H:%M:%S.%f") + now.astimezone().strftime("%z")
         jd.jd_submit_timestamp = formatted_timestamp
         # create job id, maybe "record_id__job_id" where job_id is time + random numbers
-        jd_id = functions.gen_jd_id(session['record_id'])
+        jd_id = await functions.gen_jd_id(session['record_id'])
         jd.jd_id = jd_id
         session['jd_id'] = jd.jd_id
         # store job description in DB
-        functions.add_jd(
+        await functions.add_jd(
             session['record_id']
             ,jd.jd_id
             , jd.jd_text
@@ -147,10 +153,10 @@ async def post(jd: contents.Job_Description,session):
             )
         # tailor CV and return output
         submission_confirm = fh.P('CV Optimization complete.')
-        retrieved_record = functions.get_record_dict(record_id=session['record_id'])[0]
+        retrieved_record = await functions.get_record_dict(record_id=session['record_id'])[0]
         retrieved_dict = json.loads(retrieved_record['record_dict'])
         record_content = retrieved_dict['record_content']
-        optimized_cv = functions.optimize_cv(
+        optimized_cv = await functions.optimize_cv(
             record_content
             ,jd.jd_text
             )
@@ -167,6 +173,6 @@ async def post(jd: contents.Job_Description,session):
             )
 # create @rt('/loading') and a loading routing function in contents 
 # enabling me to have a loading graphic when BE stuff is happening
-fh.serve(host='0.0.0.0',
+fh.serve(host="0.0.0.0",
         port=8080,
         )
