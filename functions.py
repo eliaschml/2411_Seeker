@@ -25,7 +25,7 @@ def call_ocr_function(image_data):
         return None
 #%% PDF text extractor
 # extracts text from all pages of one pdf file
-def extract_text(pdf_file):
+async def extract_text(pdf_file):
   # initialize output variable
   raw_text = ''
   pdf_file = BytesIO(pdf_file) # converts bytes to file
@@ -46,7 +46,7 @@ def extract_text(pdf_file):
   return raw_text
 
 #%% text reordering function
-def reorder_text(jumbled_text):
+async def reorder_text(jumbled_text):
   load_dotenv()
   reordered_texts = '' 
   # setup gemini model
@@ -62,14 +62,14 @@ def reorder_text(jumbled_text):
   return reordered_texts
 
 #%% generate record id
-def gen_record_id():
+async def gen_record_id():
    record_id = uuid.uuid1()
    return str(record_id)
 #%% generate job description id
-def gen_jd_id(record_id):
+async def gen_jd_id(record_id):
    return f'{record_id}{uuid.uuid1()}'
 #%% optimize cv function
-def optimize_cv(cv_text, jd_text):
+async def optimize_cv(cv_text, jd_text):
   load_dotenv()
   optimized_cv = '' 
   # setup gemini model
@@ -84,7 +84,7 @@ def optimize_cv(cv_text, jd_text):
   optimized_cv=response.text
   return optimized_cv
 #%% db get record function
-def get_record_dict(record_id=''):
+async def get_record_dict(record_id=''):
   # returns list of data matching the query from supabase database
   load_dotenv()
   supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -105,7 +105,7 @@ def get_record_dict(record_id=''):
     print(f"Error fetching record: {e}")
     return None
 #%% db add record function
-def add_record(record_id ,record_content):
+async def add_record(record_id ,record_content):
   load_dotenv()
   supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
   supabase.table('seeker_log').insert({
@@ -113,7 +113,7 @@ def add_record(record_id ,record_content):
     ,"record_dict": record_content
     }).execute()
 #%% db add job description function
-def add_jd(record_id ,jd_id, jd_text, submission_timestamp):
+async def add_jd(record_id ,jd_id, jd_text, submission_timestamp):
   load_dotenv()
   supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
   supabase.table('jd_log').insert({
