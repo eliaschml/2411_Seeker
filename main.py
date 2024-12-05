@@ -41,20 +41,14 @@ async def post(myFile:fh.UploadFile, session):
     file = await myFile.read()  # Access the file uploaded
     # check file is pdf, and single file
     if myFile and myFile.filename.endswith('.pdf'):
-        # tracking string
-        tracking_string = 'tracking_string'
         # extract raw text from pdf 
         jumbled_text = await functions.extract_text(file)
-        tracking_string = tracking_string + '_jumbled_text'
         # reorder jumbled text using gemini
         reordered_text = await functions.reorder_text(jumbled_text)
-        tracking_string = tracking_string + '_reorder_text'
         # generate seeker record_id
         record_id = await functions.gen_record_id()
-        tracking_string = tracking_string + f'_record_id_{record_id}'
         # store record_id to session
         session['record_id'] = record_id
-        tracking_string = tracking_string + f'_session_{session['record_id']}'
         # create seeker content json file 
         record_content = json.dumps(
             {
@@ -64,8 +58,6 @@ async def post(myFile:fh.UploadFile, session):
         )
         # store seeker file in db
         await functions.add_record(record_id,record_content)
-        tracking_string = tracking_string + 'add_string'
-        tracking_string_el = fh.P(tracking_string)
         upload_status = fh.Details(
                             fh.Summary('CV information analysis complete!✅')
                             ,fh.Div(fh.Code(jumbled_text))
@@ -81,7 +73,7 @@ async def post(myFile:fh.UploadFile, session):
             hx_swap="attr"
             )
         )
-        return tracking_string_el, upload_status,download_button_enabler
+        return upload_status,download_button_enabler
     else:
         return fh.Response('Invalid File format. Please upload a PDF.'
                            ,status=400)
@@ -153,7 +145,8 @@ async def post(jd: contents.Job_Description,session):
             )
         # tailor CV and return output
         submission_confirm = fh.P('CV Optimization complete.')
-        retrieved_record = await functions.get_record_dict(record_id=session['record_id'])[0]
+        retrieved_record_list = await functions.get_record_dict(record_id=session['record_id'])
+        retrieved_record = retrieved_record_list[0]
         retrieved_dict = json.loads(retrieved_record['record_dict'])
         record_content = retrieved_dict['record_content']
         optimized_cv = await functions.optimize_cv(
